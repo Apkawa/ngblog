@@ -33,7 +33,7 @@ class XmppDo(object):
 
 class Plugin(BasePlugin):
     '''A http://bnw.im microblog'''
-    jabbber_bot_jid = JID('bnw@bnw.im')
+    jabbber_bot_jid = JID('nyashaj@neko.im')
     default_settings = {
                 'jid':None,
                 'password':None,
@@ -59,7 +59,7 @@ class Plugin(BasePlugin):
         return bool(re.match(r'^[A-Z0-9]+$'))
 
     def add_post(self, text, tags=()):
-        body = juick_like_message(text, tags)
+        body = juick_like_message(text, tags, delim=' ')
         self._xmpp_query(body)
         #TODO return id
 

@@ -17,6 +17,7 @@ class Plugin(BasePlugin):
                 'password':None,
                 'resource':'gblog',
                 }
+    required_field = ('jid','password')
 
     def _xmpp_query(self, text):
         send_message(JID(self.settings['jid']+'/'+self.settings['resource']), 
@@ -35,6 +36,12 @@ class Plugin(BasePlugin):
         return bool(re.match(r'^[0-9]+$'))
 
     def add_post(self, text, tags=()):
+        body = juick_like_message(text, tags, delim='//')
+        self._xmpp_query(body)
+        #TODO return id
+
+    @not_implemented
+    def add_reply(self, text, post_id, reply_id=None):
         body = juick_like_message(text, tags, delim='//')
         self._xmpp_query(body)
         #TODO return id

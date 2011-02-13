@@ -20,13 +20,15 @@ class Plugin(BasePlugin):
     default_settings = {
                 'login_key':None,
                 }
+    required_field = ('login_key',)
 
     def api_query(self, url, data):
         post_data = urllib.urlencode(data)
-        print post_data
+        self.log.debug('api query: %s?%s', url, post_data)
         response = urllib.urlopen(url, post_data)
-        r = json.loads(response.read())
-        print r
+        src = response.read()
+        self.log.debug('response: %s', src)
+        r = json.loads(src)
         return r
 
 
