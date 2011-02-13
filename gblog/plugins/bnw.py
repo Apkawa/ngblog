@@ -1,40 +1,34 @@
 # -*- coding: utf-8 -*-
-from plugin import BasePlugin, not_implemented
 
 import re
+import os
+import json
+import urllib
+
 from pyxmpp.jabber.simple import xmpp_do, send_message
 from pyxmpp.jid import JID
 
 from pyxmpp.message import Message
 
-class XmppDo(object):
-    def __init__(self, body):
-        self.body = body
+from plugin import BasePlugin, not_implemented
+from utils import juick_like_message
 
-    def __call__(self, stream):
-        message = Message(to_jid=self.jabbber_bot_jid,
-                from_jid=JID(self.settings['jid']), stanza_type='chat', body=self.body)
-
-        stream.set_response_handlers(message, res_handler=self.xmpp_handler,
-                err_handler=lambda x: x,)
-        stream.send(message)
-
-    def xmpp_handler(self, stanza):
-        print stanza
-        pass
 
 class Plugin(BasePlugin):
     '''A http://bnw.im microblog'''
-    jabbber_bot_jid = JID('bnw@bnw.im')
+    api_url = 'http://bnw.im/api/'
     default_settings = {
-                'jid':None,
-                'password':None,
-                'resource':'gblog',
+                'login_key':None,
                 }
 
-    def _xmpp_query(self, text):
-        xmpp_worker = XmppDo(text)
-        xmpp_do(JID(self.settings['jid']), self.settings['password'], xmpp_worker)
+    def api_query(self, url, data):
+        post_data = urllib.urlencode(data)
+        print post_data
+        response = urllib.urlopen(url, post_data)
+        r = json.loads(response.read())
+        print r
+        return r
+
 
     #r'^(?:\#|)[A-Z0-9]+(?:\/[A-Z0-9]+|)$'
     def check_post_id(self, post_id):
@@ -50,16 +44,57 @@ class Plugin(BasePlugin):
         return bool(re.match(r'^[A-Z0-9]+$'))
 
     def add_post(self, text, tags=()):
-        pass
+        url = os.path.join(self.api_url, 'post')
+        data = {'login':self.settings['login_key']}
+        data['text'] = text
+        data['tags'] = ','.join(tags)
+        response = self.api_query(url, data)
+        if response['ok']:
+            return response['id']
 
     def add_reply(self, text, post_id, reply_id=None):
-        pass
+        url = os.path.join(self.api_url, 'comment')
+        data = {'login':self.settings['login_key']}
+        data['message'] = post_id
+        if reply_id:
+            data['message'] += "/%s"%reply_id
+        data['text'] = text
+        response = self.api_query(url, data)
+        if response['ok']:
+            return response['id']
 
     def get_post(self, post_id):
-        pass
+        url = os.path.join(self.api_url, 'show')
+        data = {}
+        data['message'] = post_id
+        response = self.api_query(url, data)
+        if response['ok']:
+            return response
 
     def get_reply(self, reply_id):
-        pass
+        url = os.path.join(self.api_url, 'show')
+        data = {}
+        data['message'] = reply_id
+        response = self.api_query(url, data)
+        if response['ok']:
+            return response
+
+    def delete_post(self, post_id):
+        url = os.path.join(self.api_url, 'delete')
+        data = {'login':self.settings['login_key']}
+        data['message'] = post_id
+        response = self.api_query(url, data)
+        if response['ok']:
+            return response
+
+    def delete_reply(self, reply_id):
+        url = os.path.join(self.api_url, 'delete')
+        data = {'login':self.settings['login_key']}
+        data['message'] = reply_id
+        response = self.api_query(url, data)
+        if response['ok']:
+            return response
+
 
 
 

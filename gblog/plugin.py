@@ -49,7 +49,7 @@ class BasePlugin(object):
     def __init__(self):
         self.settings = copy(self.default_settings)
 
-    def setup_settings(self, **kwargs):
+    def setup(self, **kwargs):
         for key, value in kwargs.iteritems():
             if key in self.default_settings:
                 self.settings[key] = value
@@ -66,15 +66,15 @@ class BasePlugin(object):
     def add_post(self, text, tags=()):
         pass
 
-    @abstractmethod
+    @not_implemented
     def add_reply(self, text, post_id, reply_id=None):
         pass
 
-    @abstractmethod
+    @not_implemented
     def get_post(self, post_id):
         pass
 
-    @abstractmethod
+    @not_implemented
     def get_reply(self, reply_id):
         pass
 
@@ -83,7 +83,7 @@ class BasePlugin(object):
         pass
 
     @not_implemented
-    def delete_replt(self, reply_id):
+    def delete_reply(self, reply_id):
         pass
 
 def main():
