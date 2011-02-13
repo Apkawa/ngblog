@@ -10,7 +10,7 @@ from plugin import BasePlugin, not_implemented
 from utils import juick_like_message
 
 class Plugin(BasePlugin):
-    '''A http://psto.net microblog'''
+    '''A http://juick.com microblog'''
     jabbber_bot_jid = JID('juick@juick.com')
     default_settings = {
                 'jid':None,
