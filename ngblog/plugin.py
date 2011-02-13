@@ -78,11 +78,11 @@ class BasePlugin(object):
                 return False
         return True
 
-
     def setup(self, **kwargs):
         for key, value in kwargs.iteritems():
             if key in self.default_settings:
                 self.settings[key] = value
+
     @property
     def log(self):
         if not hasattr(self, '__logger'):
