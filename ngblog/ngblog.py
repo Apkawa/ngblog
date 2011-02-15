@@ -28,7 +28,8 @@ class NGBlog(object):
     plugins = plugin.PluginManager()#.setup_plugins(settings.SETTINGS)
     def __init__(self):
         pass
-    def parse_opt(self):
+
+    def parse_args(self):
         plugins = self.plugins
 
         parse_opt = optparse.OptionParser()
@@ -41,8 +42,11 @@ class NGBlog(object):
 
         options, args = parse_opt.parse_args(sys.argv[1:])
 
+        if not options.plugins:
+            options.plugins = plugins.get_plugins().keys()
         logging.basicConfig(level=logging.DEBUG)
         log.debug('parsing args: %s options: %s', args, options )
+        return args, options
 
     def get_text(self, args):
         if args and args[0] != '-':
@@ -52,9 +56,9 @@ class NGBlog(object):
             log.debug('Read from stdin')
             text = sys.stdin.read()
 
-        self.run(text, options)
+        return text
 
-    def run(self, text, options):
+    def process(self, text, options):
         plugins = self.plugins
 
         settings = self.load_settings(options.settings)
@@ -71,8 +75,14 @@ class NGBlog(object):
             p = plugins_instances.get(key)
             if p.is_configured():
                 p.add_post(text, tags)
+                pass
             else:
                 log.warning('Plugin %s not valid configuration', key)
+
+    def run(self):
+        args, options = self.parse_args()
+        text = self.get_text(args)
+        self.process(text, options)
 
 
 
@@ -83,6 +93,7 @@ class NGBlog(object):
 
 def main():
     ng = NGBlog()
+    ng.run()
     '''
     tags, text = parse_message(sys.argv[1])
     for key, plug in plugins.iteritems():
